@@ -48,6 +48,18 @@
 //	is in machine.h.
 //----------------------------------------------------------------------
 
+void IncreasePC()
+{
+	/* set previous programm counter (debugging only)*/
+	kernel->machine->WriteRegister(PrevPCReg, kernel->machine->ReadRegister(PCReg));
+
+	/* set programm counter to next instruction (all Instructions are 4 byte wide)*/
+	kernel->machine->WriteRegister(PCReg, kernel->machine->ReadRegister(PCReg) + 4);
+
+	/* set next programm counter for brach execution */
+	kernel->machine->WriteRegister(NextPCReg, kernel->machine->ReadRegister(PCReg) + 4);
+}
+
 void ExceptionHandler(ExceptionType which)
 {
 	int type = kernel->machine->ReadRegister(2);
@@ -60,14 +72,17 @@ void ExceptionHandler(ExceptionType which)
 		switch (type)
 		{
 		case SC_Halt:
+		{
 			DEBUG(dbgSys, "Shutdown, initiated by user program.\n");
 
 			SysHalt();
 
 			ASSERTNOTREACHED();
 			break;
+		}
 
 		case SC_Add:
+		{
 			DEBUG(dbgSys, "Add " << kernel->machine->ReadRegister(4) << " + " << kernel->machine->ReadRegister(5) << "\n");
 
 			/* Process SysAdd Systemcall*/
@@ -80,22 +95,93 @@ void ExceptionHandler(ExceptionType which)
 			kernel->machine->WriteRegister(2, (int)result);
 
 			/* Modify return point */
-			{
-				/* set previous programm counter (debugging only)*/
-				kernel->machine->WriteRegister(PrevPCReg, kernel->machine->ReadRegister(PCReg));
-
-				/* set programm counter to next instruction (all Instructions are 4 byte wide)*/
-				kernel->machine->WriteRegister(PCReg, kernel->machine->ReadRegister(PCReg) + 4);
-
-				/* set next programm counter for brach execution */
-				kernel->machine->WriteRegister(NextPCReg, kernel->machine->ReadRegister(PCReg) + 4);
-			}
+			IncreasePC();
 
 			return;
 
 			ASSERTNOTREACHED();
 
 			break;
+		}
+
+		case SC_ReadNum:
+		{
+			int result = 0;
+			char sign = kernel->synchConsoleIn->GetChar();
+			if ('0' <= sign && sign <= '9')
+				result = sign - '0';
+			else if (sign == ' ' || sign == '\n')
+			{
+				kernel->machine->WriteRegister(2, (int)result);
+				IncreasePC();
+				break;
+			}
+
+			int cnt = 0;
+
+			while (cnt <= 10)
+			{
+				char digit = kernel->synchConsoleIn->GetChar();
+				if ('0' <= digit && digit <= '9')
+					result = result * 10 + digit - '0';
+				else if (digit == ' ' || digit == '\n')
+					break;
+				++cnt;
+			}
+
+			if (sign == '-')
+				result = -result;
+			kernel->machine->WriteRegister(2, (int)result);
+			IncreasePC();
+
+			DEBUG(dbgSys, "Reading number returning with result " << result << "\n");
+
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
+		case SC_ReadChar:
+		{
+			char result = kernel->synchConsoleIn->GetChar();
+			kernel->machine->WriteRegister(2, (int)result);
+			IncreasePC();
+
+			DEBUG(dbgSys, "Reading character returning with result " << (char)result << "\n");
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
+		case SC_RandomNum:
+		{
+			RandomInit(time(NULL));
+			int result = RandomNumber();
+			kernel->machine->WriteRegister(2, (int)result);
+			IncreasePC();
+
+			DEBUG(dbgSys, "Random number returning with result " << result << "\n");
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
+		case SC_PrintString:
+		{
+			// DEBUG(dbgSys, "HI\n");
+			// int cur = kernel->machine->ReadRegister(4);
+			// char *chr = ;
+			// DEBUG(dbgSys, cur << "\n");
+
+			IncreasePC();
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
 
 		default:
 			cerr << "Unexpected system call " << type << "\n";

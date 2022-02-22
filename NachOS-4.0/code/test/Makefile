@@ -113,13 +113,19 @@ PROGRAMS = unknownhost
 else
 # change this if you create a new test program!
 # HERE
-PROGRAMS = add halt shell matmult sort segments
+PROGRAMS = add halt shell matmult sort segments testing
 endif
 
 all: $(PROGRAMS)
 
 start.o: start.S ../userprog/syscall.h
 	$(CC) $(CFLAGS) $(ASFLAGS) -c start.S
+
+testing.o: testing.c
+	$(CC) $(CFLAGS) -c testing.c
+testing: testing.o start.o
+	$(LD) $(LDFLAGS) start.o testing.o -o testing.coff
+	$(COFF2NOFF) testing.coff testing
 
 halt.o: halt.c
 	$(CC) $(CFLAGS) -c halt.c
