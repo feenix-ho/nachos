@@ -171,10 +171,27 @@ void ExceptionHandler(ExceptionType which)
 
 		case SC_PrintString:
 		{
-			// DEBUG(dbgSys, "HI\n");
-			// int cur = kernel->machine->ReadRegister(4);
-			// char *chr = ;
-			// DEBUG(dbgSys, cur << "\n");
+			int addr = kernel->machine->ReadRegister(4);
+			int len = kernel->machine->ReadRegister(5);
+
+			bool ok = true;
+			for (int i = 0; i < len; ++i)
+			{
+				int *holder;
+				ok = kernel->machine->ReadMem(addr + i, 1, holder);
+				if (!ok)
+					break;
+				kernel->synchConsoleOut->PutChar((char)*holder);
+			}
+
+			if (!ok)
+			{
+				char *message = "ERROR: Cannot print the given string.\0";
+				for (int i = 0; message[i] != '\0'; ++i)
+					kernel->synchConsoleOut->PutChar(message[i]);
+			}
+
+			kernel->synchConsoleOut->PutChar('\n');
 
 			IncreasePC();
 			return;
