@@ -11,6 +11,12 @@ int main()
   // char str[25];
   // ReadString(str, 24);
   // PrintString(str);
-  Ascii();
+  
+  char c;
+
+  for (c = 32; c < 127; c++) {
+    PrintChar(c);
+  }
+  
   Halt();
 }

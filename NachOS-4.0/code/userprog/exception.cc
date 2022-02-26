@@ -214,24 +214,6 @@ void ExceptionHandler(ExceptionType which)
 			break;
 		}
 
-		case SC_Ascii:
-		{
-			for (char c = 32; c < 127; c++)
-			{
-				SysPrintChar(c);
-			}
-
-			SysPrintChar('\n');
-			kernel->machine->WriteRegister(2, (int)0);
-			IncreasePC();
-
-			DEBUG(dbgSys, "Ascii returning with result OK\n");
-			return;
-
-			ASSERTNOTREACHED();
-			break;
-		}
-
 		default:
 			cerr << "Unexpected system call " << type << "\n";
 			break;
