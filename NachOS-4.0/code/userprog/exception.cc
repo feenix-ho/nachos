@@ -129,7 +129,7 @@ void ExceptionHandler(ExceptionType which)
 			do {
 				result = SysReadChar();
 			} while (result < 32 || result > 126);
-			
+
 			kernel->machine->WriteRegister(2, (int)result);
 			IncreasePC();
 
@@ -208,6 +208,24 @@ void ExceptionHandler(ExceptionType which)
 
 			kernel->machine->WriteRegister(2, (int)status);
 			IncreasePC();
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
+		case SC_Ascii:
+		{
+			for (char c = 32; c < 127; c++)
+			{
+				SysPrintChar(c);
+			}
+
+			SysPrintChar('\n');
+			kernel->machine->WriteRegister(2, (int)0);
+			IncreasePC();
+
+			DEBUG(dbgSys, "Ascii returning with result OK\n");
 			return;
 
 			ASSERTNOTREACHED();

@@ -114,6 +114,14 @@ PrintString :
 	j 	$31
 	.end PrintString
 
+	.globl Ascii  
+	.ent	Ascii  
+Ascii :
+	addiu $2,$0,SC_Ascii
+	syscall
+	j 	$31
+	.end Ascii
+
 	.globl Exit
 	.ent	Exit
 Exit:
