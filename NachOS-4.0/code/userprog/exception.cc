@@ -181,6 +181,8 @@ void ExceptionHandler(ExceptionType which)
 				ok = kernel->machine->ReadMem(addr + i, 1, holder);
 				if (!ok)
 					break;
+				if (*holder == (int)'\0')
+					break;
 				kernel->synchConsoleOut->PutChar((char)*holder);
 			}
 
