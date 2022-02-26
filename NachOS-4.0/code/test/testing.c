@@ -3,9 +3,13 @@
 int main()
 {
   // int num = ReadNum();
-  // char chr = ReadChar();
+  // PrintNum(num);
+  char chr = ReadChar();
+  PrintChar(chr);
   // int num = RandomNum();
-  char *str = "hihihihi";
-  PrintString(str, 8);
+  // PrintNum(num);
+  // char str[25];
+  // ReadString(str, 24);
+  // PrintString(str);
   Halt();
 }
