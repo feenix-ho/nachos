@@ -12,11 +12,13 @@ int main()
   // ReadString(str, 24);
   // PrintString(str);
   
-  char c;
+  // char c;
 
-  for (c = 32; c < 127; c++) {
-    PrintChar(c);
-  }
+  // for (c = 32; c < 127; c++) {
+  //   PrintChar(c);
+  // }
+
   
+
   Halt();
 }

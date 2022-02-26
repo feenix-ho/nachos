@@ -132,8 +132,6 @@ int SysPrintString(char *buffer)
 
   for (int i = 0; buffer[i] != '\0'; ++i)
     SysPrintChar(buffer[i]);
-
-  SysPrintChar('\n');
   return result;
 }
 

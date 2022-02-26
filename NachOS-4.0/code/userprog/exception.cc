@@ -144,7 +144,6 @@ void ExceptionHandler(ExceptionType which)
 		{
 			char result = kernel->machine->ReadRegister(4);
 			SysPrintChar(result);
-			SysPrintChar('\n');
 			kernel->machine->WriteRegister(2, (int)0);
 			IncreasePC();
 
