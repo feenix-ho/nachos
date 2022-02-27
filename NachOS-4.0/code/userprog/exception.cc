@@ -107,14 +107,17 @@ void ExceptionHandler(ExceptionType which)
 		case SC_ReadNum:
 		{
 			int result = 0;
-			char sign = kernel->synchConsoleIn->GetChar();
-			if ('0' <= sign && sign <= '9')
-				result = sign - '0';
-			else if (sign == ' ' || sign == '\n')
+			char sign;
+			while (true)
 			{
-				kernel->machine->WriteRegister(2, (int)result);
-				IncreasePC();
-				break;
+				sign = kernel->synchConsoleIn->GetChar();
+				if ('0' <= sign && sign <= '9')
+				{
+					result = sign - '0';
+					break;
+				}
+				if (sign == '-')
+					break;
 			}
 
 			int cnt = 0;
