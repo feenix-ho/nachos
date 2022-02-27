@@ -113,7 +113,7 @@ PROGRAMS = unknownhost
 else
 # change this if you create a new test program!
 # HERE
-PROGRAMS = add halt shell matmult sort segments testing
+PROGRAMS = add halt shell matmult sort segments testing help ascii
 endif
 
 all: $(PROGRAMS)
@@ -126,6 +126,18 @@ testing.o: testing.c
 testing: testing.o start.o
 	$(LD) $(LDFLAGS) start.o testing.o -o testing.coff
 	$(COFF2NOFF) testing.coff testing
+
+help.o: help.c
+	$(CC) $(CFLAGS) -c help.c
+help: help.o start.o
+	$(LD) $(LDFLAGS) start.o help.o -o help.coff
+	$(COFF2NOFF) help.coff help
+
+ascii.o: ascii.c
+	$(CC) $(CFLAGS) -c ascii.c
+ascii: ascii.o start.o
+	$(LD) $(LDFLAGS) start.o ascii.o -o ascii.coff
+	$(COFF2NOFF) ascii.coff ascii
 
 halt.o: halt.c
 	$(CC) $(CFLAGS) -c halt.c

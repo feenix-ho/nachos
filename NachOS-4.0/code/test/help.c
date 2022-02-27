@@ -8,7 +8,7 @@ int main() {
         "ASCII: at directory code, run build.linux/nachos -x test/ascii to "
         "print the ASCII table\n");
     PrintString(
-        "Sort: at directory code, run build.linux/nachos -x test/bubblesort to "
+        "Sort: at directory code, run build.linux/nachos -x test/sort to "
         "start the sort program\n");
     PrintString("\t- Enter n (the length of the array, 0 <= n <= 100)\n");
     PrintString("\t- Enter n elements of the array\n");
