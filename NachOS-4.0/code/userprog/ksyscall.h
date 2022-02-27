@@ -163,6 +163,8 @@ int SysReadNum()
     ++cnt;
   }
 
+  if (sign == '-')
+    return -result;
   return result;
 }
 
