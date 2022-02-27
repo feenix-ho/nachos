@@ -27,16 +27,28 @@ int A[SIZE];	/* size of physical memory; with code, we'll run out of space!*/
 int
 main()
 {
-    int i, j, tmp;
+    int i, j, tmp, n;
+
+    PrintString("Size of your array: ");
+    n = ReadNum();
+
+    if (n > SIZE) {
+        PrintString("Array too big!\n");
+        Halt();
+    }
 
     /* first initialize the array, in reverse sorted order */
-    for (i = 0; i < SIZE; i++) {
-        A[i] = (SIZE-1) - i;
+    for (i = 0; i < n; i++) {
+        PrintString("Enter number ");
+        PrintNum(i);
+        PrintString(": ");
+
+        A[i] = ReadNum();
     }
 
     /* then sort! */
-    for (i = 0; i < SIZE; i++) {
-        for (j = 0; j < (SIZE-1); j++) {
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < (n-1); j++) {
 	   if (A[j] > A[j + 1]) {	/* out of order -> need to swap ! */
 	      tmp = A[j];
 	      A[j] = A[j + 1];
@@ -59,11 +71,14 @@ main()
     printf("\n");
 #endif /* UNIX_DEBUG */
 
-    for (i=0; i<SIZE; i++) {
-        if (A[i] != i) {
-            Exit(1);
-        }   
+    for (i=0; i<n; i++)
+    {
+        PrintString("A[");
+        PrintNum(i);
+        PrintString("] = ");
+        PrintNum(A[i]);
+        PrintChar('\n');
     }
 
-    Exit(0);
+    Halt();
 }

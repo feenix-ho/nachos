@@ -48,18 +48,6 @@
 //	is in machine.h.
 //----------------------------------------------------------------------
 
-void IncreasePC()
-{
-	/* set previous programm counter (debugging only)*/
-	kernel->machine->WriteRegister(PrevPCReg, kernel->machine->ReadRegister(PCReg));
-
-	/* set programm counter to next instruction (all Instructions are 4 byte wide)*/
-	kernel->machine->WriteRegister(PCReg, kernel->machine->ReadRegister(PCReg) + 4);
-
-	/* set next programm counter for brach execution */
-	kernel->machine->WriteRegister(NextPCReg, kernel->machine->ReadRegister(PCReg) + 4);
-}
-
 void ExceptionHandler(ExceptionType which)
 {
 	int type = kernel->machine->ReadRegister(2);
@@ -106,34 +94,8 @@ void ExceptionHandler(ExceptionType which)
 
 		case SC_ReadNum:
 		{
-			int result = 0;
-			char sign;
-			while (true)
-			{
-				sign = kernel->synchConsoleIn->GetChar();
-				if ('0' <= sign && sign <= '9')
-				{
-					result = sign - '0';
-					break;
-				}
-				if (sign == '-')
-					break;
-			}
+			int result = SysReadNum();
 
-			int cnt = 0;
-
-			while (cnt <= 10)
-			{
-				char digit = kernel->synchConsoleIn->GetChar();
-				if ('0' <= digit && digit <= '9')
-					result = result * 10 + digit - '0';
-				else if (digit == ' ' || digit == '\n')
-					break;
-				++cnt;
-			}
-
-			if (sign == '-')
-				result = -result;
 			kernel->machine->WriteRegister(2, (int)result);
 			IncreasePC();
 
@@ -145,13 +107,48 @@ void ExceptionHandler(ExceptionType which)
 			break;
 		}
 
+		case SC_PrintNum:
+		{
+			int num = kernel->machine->ReadRegister(4);
+
+			SysPrintNum(num);
+
+			// Successfully printed the number
+			kernel->machine->WriteRegister(2, (int)0);
+
+			IncreasePC();
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
 		case SC_ReadChar:
 		{
-			char result = kernel->synchConsoleIn->GetChar();
+			char result;
+			do
+			{
+				result = SysReadChar();
+			} while (result < 32 || result > 126);
+
 			kernel->machine->WriteRegister(2, (int)result);
 			IncreasePC();
 
 			DEBUG(dbgSys, "Reading character returning with result " << (char)result << "\n");
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
+		case SC_PrintChar:
+		{
+			char result = kernel->machine->ReadRegister(4);
+			SysPrintChar(result);
+			kernel->machine->WriteRegister(2, (int)0);
+			IncreasePC();
+
+			DEBUG(dbgSys, "Printing character returning with result " << result << "\n");
 			return;
 
 			ASSERTNOTREACHED();
@@ -172,32 +169,44 @@ void ExceptionHandler(ExceptionType which)
 			break;
 		}
 
+		case SC_ReadString:
+		{
+			int virtAddr = kernel->machine->ReadRegister(4);
+			int length = kernel->machine->ReadRegister(5);
+
+			char *buffer = new char[length + 1];
+			int cnt = SysReadString(buffer, length);
+
+			int transfered = System2User(virtAddr, cnt + 1, buffer);
+			delete[] buffer;
+
+			kernel->machine->WriteRegister(2, (int)transfered);
+			IncreasePC();
+
+			DEBUG(dbgSys, "Reading string returning with len " << transfered << "\n");
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
 		case SC_PrintString:
 		{
-			int addr = kernel->machine->ReadRegister(4);
-			int len = kernel->machine->ReadRegister(5);
+			int virtAddr = kernel->machine->ReadRegister(4);
 
-			bool ok = true;
-			for (int i = 0; i < len; ++i)
+			char *buffer = User2System(virtAddr, STRING_SIZE);
+			int status = SysPrintString(buffer);
+
+			if (status == 0)
 			{
-				int *holder;
-				ok = kernel->machine->ReadMem(addr + i, 1, holder);
-				if (!ok)
-					break;
-				if (*holder == (int)'\0')
-					break;
-				kernel->synchConsoleOut->PutChar((char)*holder);
+				DEBUG(dbgSys, "Printing string OK\n");
+			}
+			else
+			{
+				DEBUG(dbgSys, "Printing string failed\n");
 			}
 
-			if (!ok)
-			{
-				char *message = "ERROR: Cannot print the given string.\0";
-				for (int i = 0; message[i] != '\0'; ++i)
-					kernel->synchConsoleOut->PutChar(message[i]);
-			}
-
-			kernel->synchConsoleOut->PutChar('\n');
-
+			kernel->machine->WriteRegister(2, (int)status);
 			IncreasePC();
 			return;
 
@@ -211,6 +220,14 @@ void ExceptionHandler(ExceptionType which)
 		}
 		break;
 		// CODE GOES HERE
+	case NoException:
+		cerr << "No exception detected.\n";
+
+		IncreasePC();
+		return;
+
+		ASSERTNOTREACHED();
+		break;
 	default:
 		cerr << "Unexpected user mode exception" << (int)which << "\n";
 		break;

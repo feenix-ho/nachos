@@ -38,9 +38,14 @@
 #define SC_Add 42
 
 #define SC_ReadNum 43
-#define SC_ReadChar 44
-#define SC_RandomNum 45
-#define SC_PrintString 46
+#define SC_PrintNum 44
+#define SC_ReadChar 45
+#define SC_PrintChar 46
+#define SC_RandomNum 47
+#define SC_ReadString 48
+#define SC_PrintString 49
+
+#define STRING_SIZE 256
 
 #ifndef IN_ASM
 
@@ -64,9 +69,12 @@ void Halt();
 int Add(int op1, int op2);
 
 int ReadNum();
+void PrintNum();
 char ReadChar();
+void PrintChar();
 int RandomNum();
-void PrintString(char *str, int len);
+void ReadString(char buffer[], int length);
+void PrintString(char str[]);
 
 /* Address space control operations: Exit, Exec, Execv, and Join */
 
