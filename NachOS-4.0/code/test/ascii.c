@@ -8,4 +8,6 @@ int main() {
         PrintChar((char)i);
         PrintChar('\n');
     }
+
+    Halt();
 }

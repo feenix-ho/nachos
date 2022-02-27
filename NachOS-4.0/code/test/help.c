@@ -2,6 +2,7 @@
 
 int main() {
     PrintString("Our team:\n");
+    
     PrintString("19125003 Huynh Lam Hai Dang\n");
     PrintString("19125014 Ho Thi Ngoc Phuong\n");
     PrintString(
@@ -17,4 +18,6 @@ int main() {
         "2: decreasing)\n");
     PrintString(
         "\t- The program will print out the sorted array and then exit\n");
+
+    Halt();
 }

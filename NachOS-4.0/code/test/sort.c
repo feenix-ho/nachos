@@ -27,7 +27,7 @@ int A[SIZE];	/* size of physical memory; with code, we'll run out of space!*/
 int
 main()
 {
-    int i, j, tmp, n;
+    int i, j, tmp, n, order;
 
     PrintString("Size of your array: ");
     n = ReadNum();
@@ -45,6 +45,11 @@ main()
 
         A[i] = ReadNum();
     }
+
+    /* Let user choose the order of sorting */
+
+    PrintString("Enter the order you want to sort the array with (1: increasing, 2: decreasing): ");
+    order = ReadNum();
 
     /* then sort! */
     for (i = 0; i < n; i++) {
@@ -71,12 +76,19 @@ main()
     printf("\n");
 #endif /* UNIX_DEBUG */
 
+    /* Print the sorted array in specified order */
     for (i=0; i<n; i++)
     {
         PrintString("A[");
         PrintNum(i);
         PrintString("] = ");
-        PrintNum(A[i]);
+        
+        if (order == 1) {
+            PrintNum(A[i]);
+        } else {
+            PrintNum(A[n-i-1]);
+        }
+        
         PrintChar('\n');
     }
 
