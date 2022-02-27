@@ -2,8 +2,8 @@
 
 int main()
 {
-  // int num = ReadNum();
-  // PrintNum(num);
+  int num = ReadNum();
+  PrintNum(num);
   // char chr = ReadChar();
   // PrintChar(chr);
   // int num = RandomNum();
@@ -19,6 +19,6 @@ int main()
   // }
 
   
-
+  PrintChar('\n');
   Halt();
 }

@@ -99,7 +99,7 @@ void ExceptionHandler(ExceptionType which)
 			kernel->machine->WriteRegister(2, (int)result);
 			IncreasePC();
 
-			DEBUG(dbgSys, "Reading number returning with result " << result << "\n");
+			DEBUG(dbgSys, "Reading number returning with result " << (int)result << "\n");
 
 			return;
 
@@ -112,6 +112,7 @@ void ExceptionHandler(ExceptionType which)
 			int num = kernel->machine->ReadRegister(4);
 
 			SysPrintNum(num);
+			DEBUG(dbgSys, "Printing number " << (int)num << "\n");
 
 			// Successfully printed the number
 			kernel->machine->WriteRegister(2, (int)0);
@@ -148,7 +149,7 @@ void ExceptionHandler(ExceptionType which)
 			kernel->machine->WriteRegister(2, (int)0);
 			IncreasePC();
 
-			DEBUG(dbgSys, "Printing character returning with result " << result << "\n");
+			DEBUG(dbgSys, "Printing character returning with result " << (char)result << "\n");
 			return;
 
 			ASSERTNOTREACHED();
@@ -162,7 +163,7 @@ void ExceptionHandler(ExceptionType which)
 			kernel->machine->WriteRegister(2, (int)result);
 			IncreasePC();
 
-			DEBUG(dbgSys, "Random number returning with result " << result << "\n");
+			DEBUG(dbgSys, "Random number returning with result " << (int)result << "\n");
 			return;
 
 			ASSERTNOTREACHED();
@@ -183,7 +184,7 @@ void ExceptionHandler(ExceptionType which)
 			kernel->machine->WriteRegister(2, (int)transfered);
 			IncreasePC();
 
-			DEBUG(dbgSys, "Reading string returning with len " << transfered << "\n");
+			DEBUG(dbgSys, "Reading string returning with len " << (int)transfered << "\n");
 			return;
 
 			ASSERTNOTREACHED();
@@ -222,6 +223,7 @@ void ExceptionHandler(ExceptionType which)
 		// CODE GOES HERE
 	case NoException:
 		cerr << "No exception detected.\n";
+		DEBUG(dbgSys, "No exception detected.\n");
 
 		IncreasePC();
 		return;
