@@ -1,9 +1,11 @@
 #include "syscall.h"
 
-int main()
-{
-  for (int i = 32; i <= 126; ++i)
-  {
-    // PrintChar((char)i);
-  }
+int main() {
+    int i;
+    for (i = 32; i <= 126; i++) {
+        PrintNum(i);
+        PrintChar(' ');
+        PrintChar((char)i);
+        PrintChar('\n');
+    }
 }
