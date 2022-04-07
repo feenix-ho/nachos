@@ -46,6 +46,7 @@
 #define SC_PrintString 49
 
 #define STRING_SIZE 256
+#define FILE_NUM 10
 
 #ifndef IN_ASM
 

@@ -215,6 +215,62 @@ void ExceptionHandler(ExceptionType which)
 			break;
 		}
 
+		case SC_Open:
+		{
+			int virtAddr = kernel->machine->ReadRegister(4);
+			char *buffer = User2System(virtAddr, STRING_SIZE);
+
+			int status = SysOpen(buffer);
+			if (status < 0)
+			{
+				DEBUG(dbgFile, "File openning error!");
+			}
+
+			kernel->machine->WriteRegister(2, (int)status);
+			IncreasePC();
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
+		case SC_Close:
+		{
+			int fd = kernel->machine->ReadRegister(4);
+
+			int status = SysClose(fd);
+			if (status < 0)
+			{
+				DEBUG(dbgSys, "Closing file error!");
+			}
+
+			kernel->machine->WriteRegister(2, (int)status);
+			IncreasePC();
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
+		case SC_Seek:
+		{
+			int pos = kernel->machine->ReadRegister(4);
+			int fd = kernel->machine->ReadRegister(5);
+
+			int status = SysSeek(pos, fd);
+			if (status < 0)
+			{
+				DEBUG(dbgSys, "Seeking file error!");
+			}
+
+			kernel->machine->WriteRegister(2, (int)status);
+			IncreasePC();
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
 		default:
 			cerr << "Unexpected system call " << type << "\n";
 			break;

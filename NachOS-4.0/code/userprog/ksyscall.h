@@ -75,6 +75,15 @@ char *User2System(int virtAddr, int limit)
 
 void SysHalt()
 {
+  if (openFileTable != NULL)
+  {
+    for (int fd = 0; fd < FILE_NUM; ++fd)
+      if (openFileTable[fd] != NULL)
+        delete openFileTable[fd];
+
+    delete[] openFileTable;
+  }
+
   kernel->interrupt->Halt();
 }
 
@@ -184,6 +193,70 @@ void SysPrintNum(int num)
   // Print number
   SysPrintString(buffer);
   delete[] buffer;
+}
+
+int SysOpen(char *filename)
+{
+  OpenFile *openFile = kernel->fileSystem->Open(filename);
+  
+  if (openFile == NULL)
+    return -1;
+  
+  if (openFileTable == NULL)
+  {
+    openFileTable = new OpenFile*[FILE_NUM];
+
+    for (int i = 0; i < FILE_NUM; ++i)
+      openFileTable[i] = NULL;
+  }
+
+  for (int fd = 0; fd < FILE_NUM; ++fd)
+    if (openFileTable[fd] == NULL)
+    {
+      openFileTable[fd] = openFile;
+      return fd;
+    }
+  
+  return -1;
+}
+
+int SysClose(int fd)
+{
+  if (fd < 0 || fd >= FILE_NUM)
+    return -1;
+
+  if (openFileTable[fd] == NULL)
+    return -1;
+
+  delete openFileTable[fd];
+  openFileTable[fd] = NULL;
+  return 0;
+}
+
+int SysSeek(int position, int fd)
+{
+  if (fd < 0 || fd >= FILE_NUM)
+    return -1;
+
+  if (openFileTable[fd] == NULL)
+    return -1;
+
+  int length = openFileTable[fd]->Length();
+  
+  if (position < 0)
+  {
+    openFileTable[fd]->Seek(length);
+    return length;
+  }
+  else if (position > length)
+  {
+    return -1;
+  }
+  else
+  {
+    openFileTable[fd]->Seek(position);
+    return position;
+  }
 }
 
 #endif /* ! __USERPROG_KSYSCALL_H__ */

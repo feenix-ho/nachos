@@ -14,6 +14,7 @@
 
 extern Kernel *kernel;
 extern Debug *debug;
+extern OpenFile **openFileTable;
 
 #endif // MAIN_H
 
