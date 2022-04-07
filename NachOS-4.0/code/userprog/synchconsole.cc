@@ -53,15 +53,31 @@ char SynchConsoleInput::GetChar()
 }
 
 //----------------------------------------------------------------------
+// SynchConsoleInput::GetString
+//      Read a string from keyboard to buffer, return number of read characters.
+//----------------------------------------------------------------------
+
+int SynchConsoleInput::GetString(char *buffer, int size)
+{
+    for (int i = 0; i < size; ++i)
+    {
+        buffer[i] = GetChar();
+        if (buffer[i] == EOF)
+        {
+            buffer[i] = 0;
+            return -2;
+        }
+    }
+    return size;
+}
+
+//----------------------------------------------------------------------
 // SynchConsoleInput::CallBack
 //      Interrupt handler called when keystroke is hit; wake up
 //	anyone waiting.
 //----------------------------------------------------------------------
 
-void SynchConsoleInput::CallBack()
-{
-    waitFor->V();
-}
+void SynchConsoleInput::CallBack() { waitFor->V(); }
 
 //----------------------------------------------------------------------
 // SynchConsoleOutput::SynchConsoleOutput
@@ -104,12 +120,22 @@ void SynchConsoleOutput::PutChar(char ch)
 }
 
 //----------------------------------------------------------------------
+// SynchConsoleOutput::PutString
+//      Write a string to the console display, return number of written
+//      charaters.
+//----------------------------------------------------------------------
+
+int SynchConsoleOutput::PutString(char *buffer, int size)
+{
+    for (int i = 0; i < size; ++i)
+        PutChar(buffer[i]);
+    return size;
+}
+
+//----------------------------------------------------------------------
 // SynchConsoleOutput::CallBack
 //      Interrupt handler called when it's safe to send the next
 //	character can be sent to the display.
 //----------------------------------------------------------------------
 
-void SynchConsoleOutput::CallBack()
-{
-    waitFor->V();
-}
+void SynchConsoleOutput::CallBack() { waitFor->V(); }

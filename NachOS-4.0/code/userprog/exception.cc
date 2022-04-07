@@ -271,6 +271,8 @@ void ExceptionHandler(ExceptionType which)
 			break;
 		}
 
+		
+
 		default:
 			cerr << "Unexpected system call " << type << "\n";
 			break;

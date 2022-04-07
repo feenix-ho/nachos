@@ -13,6 +13,7 @@
 
 #include "synchconsole.h"
 #include "kernel.h"
+#include "filesys.h"
 
 void IncreasePC()
 {
@@ -26,11 +27,6 @@ void IncreasePC()
   kernel->machine->WriteRegister(NextPCReg, kernel->machine->ReadRegister(PCReg) + 4);
 }
 
-// Input: - User space address (int)
-//       - Limit of buffer (int)
-//       - Buffer (char[])
-// Output:- Number of bytes copied (int)
-// Purpose: Copy buffer from System memory space to User  memory space
 int System2User(int virtAddr, int len, char *buffer)
 {
   if (len < 0)
@@ -48,10 +44,6 @@ int System2User(int virtAddr, int len, char *buffer)
   return i;
 }
 
-// Input: - User space address (int)
-// - Limit of buffer (int)
-// Output:- Buffer (char*)
-// Purpose: Copy buffer from User memory space to System memory space
 char *User2System(int virtAddr, int limit)
 {
   int i; // index
@@ -195,68 +187,82 @@ void SysPrintNum(int num)
   delete[] buffer;
 }
 
+bool SysCreate(char *filename)
+{
+  int length = strlen(filename);
+  bool success;
+
+  if (length == 0)
+  {
+    DEBUG(dbgSys, "\nERROR: Empty file name.");
+    return false;
+  }
+
+  if (filename == NULL)
+  {
+    DEBUG(dbgSys, "\nERROR: Not enough memory.")
+    return false;
+  }
+
+  success = kernel->fileSystem->Create(filename);
+  if (!success)
+  {
+    DEBUG(dbgSys, "\nERROR: Failed to create file.");
+  }
+  return success;
+}
+
 int SysOpen(char *filename)
 {
-  OpenFile *openFile = kernel->fileSystem->Open(filename);
-  
-  if (openFile == NULL)
-    return -1;
-  
-  if (openFileTable == NULL)
+  int fileId = kernel->fileSystem->Open(filename, 0);
+
+  if (fileId == -1)
   {
-    openFileTable = new OpenFile*[FILE_NUM];
-
-    for (int i = 0; i < FILE_NUM; ++i)
-      openFileTable[i] = NULL;
-  }
-
-  for (int fd = 0; fd < FILE_NUM; ++fd)
-    if (openFileTable[fd] == NULL)
-    {
-      openFileTable[fd] = openFile;
-      return fd;
-    }
-  
-  return -1;
-}
-
-int SysClose(int fd)
-{
-  if (fd < 0 || fd >= FILE_NUM)
-    return -1;
-
-  if (openFileTable[fd] == NULL)
-    return -1;
-
-  delete openFileTable[fd];
-  openFileTable[fd] = NULL;
-  return 0;
-}
-
-int SysSeek(int position, int fd)
-{
-  if (fd < 0 || fd >= FILE_NUM)
-    return -1;
-
-  if (openFileTable[fd] == NULL)
-    return -1;
-
-  int length = openFileTable[fd]->Length();
-  
-  if (position < 0)
-  {
-    openFileTable[fd]->Seek(length);
-    return length;
-  }
-  else if (position > length)
-  {
-    return -1;
+    DEBUG(dbgSys, "\nERROR: Failed to open file.");
   }
   else
   {
-    openFileTable[fd]->Seek(position);
-    return position;
+    DEBUG(dbgSys, "\nOpened file with name " << filename << " at ID " << fileId << "\n");
   }
+  return fileId;
+}
+
+int SysClose(int fileId)
+{
+  return kernel->fileSystem->Close(fileId);
+}
+
+int SysRead(char *buffer, int size, int fileId)
+{
+  if (fileId == _ConsoleInput)
+  {
+    return kernel->synchConsoleIn->GetString(buffer, size);
+  }
+  return kernel->fileSystem->Read(buffer, size, fileId);
+}
+
+int SysWrite(char *buffer, int size, int fileId)
+{
+  if (fileId == _ConsoleOutput)
+  {
+    return kernel->synchConsoleOut->PutString(buffer, size);
+  }
+  return kernel->fileSystem->Write(buffer, size, fileId);
+}
+
+int SysSeek(int position, int fileId)
+{
+  if (fileId == 0 || fileId == 1)
+  {
+    DEBUG(dbgSys, "\nERROR: Seek in console.");
+    return -1;
+  }
+  return kernel->fileSystem->Seek(position, fileId);
+}
+
+int SysRemove(char *filename)
+{
+  return kernel->fileSystem->Remove(filename);
 }
 
 #endif /* ! __USERPROG_KSYSCALL_H__ */

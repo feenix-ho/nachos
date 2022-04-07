@@ -26,7 +26,8 @@ public:
   SynchConsoleInput(char *inputFile); // Initialize the console device
   ~SynchConsoleInput();               // Deallocate console device
 
-  char GetChar(); // Read a character, waiting if necessary
+  char GetChar();                        // Read a character, waiting if necessary
+  int GetString(char *buffer, int size); // Read characters into buffer
 
 private:
   ConsoleInput *consoleInput; // the hardware keyboard
@@ -42,7 +43,8 @@ public:
   SynchConsoleOutput(char *outputFile); // Initialize the console device
   ~SynchConsoleOutput();
 
-  void PutChar(char ch); // Write a character, waiting if necessary
+  void PutChar(char ch);                 // Write a character, waiting if necessary
+  int PutString(char *buffer, int size); // Write characters from buffer
 
 private:
   ConsoleOutput *consoleOutput; // the hardware display
