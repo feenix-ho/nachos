@@ -93,9 +93,14 @@ public:
         return fileTable[FileTableIndex()]->Insert(name, openMode);
     }
 
-    bool IsOpening(char *name)
+    bool IsOpeningFilename(char *name)
     {
-        return fileTable[FileTableIndex()]->IsOpening(name);
+        return fileTable[FileTableIndex()]->IsOpeningFilename(name);
+    }
+
+    bool IsOpeningID(int fileId)
+    {
+        return fileTable[FileTableIndex()]->IsOpeningID(fileId);
     }
 
     int Close(int id) { return fileTable[FileTableIndex()]->Remove(id); }

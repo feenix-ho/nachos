@@ -211,13 +211,18 @@ bool SysCreate(char *filename)
   }
   else
   {
-    DEBUG(dbgSys, "\nERROR: Created file with name " << filename);
+    DEBUG(dbgSys, "\nCreated file with name " << filename);
   }
   return success;
 }
 
 int SysOpen(char *filename)
 {
+  if (filename == NULL || strlen(filename) == 0)
+  {
+    DEBUG(dbgSys, "\nERROR: Invalid file name.");
+    return -1;
+  }
   int fileId = kernel->fileSystem->Open(filename, 0);
 
   if (fileId == -1)
@@ -233,6 +238,13 @@ int SysOpen(char *filename)
 
 int SysClose(int fileId)
 {
+  bool isOpening = kernel->fileSystem->IsOpeningID(fileId);
+  if (!isOpening)
+  {
+    DEBUG(dbgSys, "\nERROR: File is not opening.");
+    return -1;
+  }
+
   int status = kernel->fileSystem->Close(fileId);
   if (status < 0)
   {
@@ -275,8 +287,12 @@ int SysSeek(int position, int fileId)
 
 int SysRemove(char *filename)
 {
-  // cerr << kernel->fileSystem->IsOpening(filename);
-  bool isOpening = kernel->fileSystem->IsOpening(filename);
+  if (filename == NULL || strlen(filename) == 0)
+  {
+    DEBUG(dbgSys, "\nERROR: Invalid file name.");
+    return -1;
+  }
+  bool isOpening = kernel->fileSystem->IsOpeningFilename(filename);
   if (isOpening)
   {
     DEBUG(dbgSys, "\nERROR: File is currently opening.");

@@ -59,7 +59,7 @@ public:
         return freeIndex;
     }
 
-    bool IsOpening(char *fileName)
+    bool IsOpeningFilename(char *fileName)
     {
         for (int i = 0; i < FILE_MAX; ++i)
             if (filename[i] == fileName && openFile[i] != NULL)
@@ -67,6 +67,13 @@ public:
                 return true;
             }
         return false;
+    }
+
+    bool IsOpeningID(int fileId)
+    {
+        if (fileId < 2 || fileId >= FILE_MAX)
+            return false;
+        return (openFile[fileId] != NULL);
     }
 
     int Remove(int index)
