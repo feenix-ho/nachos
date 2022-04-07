@@ -67,14 +67,14 @@ char *User2System(int virtAddr, int limit)
 
 void SysHalt()
 {
-  if (openFileTable != NULL)
-  {
-    for (int fd = 0; fd < FILE_NUM; ++fd)
-      if (openFileTable[fd] != NULL)
-        delete openFileTable[fd];
+  // if (openFileTable != NULL)
+  // {
+  //   for (int fd = 0; fd < FILE_NUM; ++fd)
+  //     if (openFileTable[fd] != NULL)
+  //       delete openFileTable[fd];
 
-    delete[] openFileTable;
-  }
+  //   delete[] openFileTable;
+  // }
 
   kernel->interrupt->Halt();
 }
@@ -209,6 +209,10 @@ bool SysCreate(char *filename)
   {
     DEBUG(dbgSys, "\nERROR: Failed to create file.");
   }
+  else
+  {
+    DEBUG(dbgSys, "\nERROR: Created file with name " << filename);
+  }
   return success;
 }
 
@@ -229,7 +233,16 @@ int SysOpen(char *filename)
 
 int SysClose(int fileId)
 {
-  return kernel->fileSystem->Close(fileId);
+  int status = kernel->fileSystem->Close(fileId);
+  if (status < 0)
+  {
+    DEBUG(dbgSys, "\nERROR: Failed to close file.");
+  }
+  else
+  {
+    DEBUG(dbgSys, "\nClosed file at ID " << fileId << "\n");
+  }
+  return status;
 }
 
 int SysRead(char *buffer, int size, int fileId)

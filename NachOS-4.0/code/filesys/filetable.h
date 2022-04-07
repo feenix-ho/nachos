@@ -45,8 +45,8 @@ public:
 
         if (openMode == MODE_READWRITE)
             fileDescriptor = OpenForReadWrite(fileName, FALSE);
-        if (openMode == MODE_READ)
-            fileDescriptor = OpenForRead(fileName, FALSE);
+        // if (openMode == MODE_READ)
+        //     fileDescriptor = OpenForRead(fileName, FALSE);
 
         if (fileDescriptor == -1)
             return -1;

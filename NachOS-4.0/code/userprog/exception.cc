@@ -215,17 +215,28 @@ void ExceptionHandler(ExceptionType which)
 			break;
 		}
 
+		case SC_Create:
+		{
+			int virtAddr = kernel->machine->ReadRegister(4);
+			char *buffer = User2System(virtAddr, STRING_SIZE);
+
+			bool status = SysCreate(buffer);
+			kernel->machine->WriteRegister(2, status ? 1 : -1);
+			delete[] buffer;
+			IncreasePC();
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
 		case SC_Open:
 		{
 			int virtAddr = kernel->machine->ReadRegister(4);
 			char *buffer = User2System(virtAddr, STRING_SIZE);
 
 			int status = SysOpen(buffer);
-			if (status < 0)
-			{
-				DEBUG(dbgFile, "File openning error!");
-			}
-
+			delete[] buffer;
 			kernel->machine->WriteRegister(2, (int)status);
 			IncreasePC();
 			return;
@@ -236,15 +247,49 @@ void ExceptionHandler(ExceptionType which)
 
 		case SC_Close:
 		{
-			int fd = kernel->machine->ReadRegister(4);
+			int fileId = kernel->machine->ReadRegister(4);
 
-			int status = SysClose(fd);
-			if (status < 0)
-			{
-				DEBUG(dbgSys, "Closing file error!");
-			}
-
+			int status = SysClose(fileId);
 			kernel->machine->WriteRegister(2, (int)status);
+			IncreasePC();
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
+		case SC_Write:
+		{
+			int virtAddr = kernel->machine->ReadRegister(4);
+			char *buffer = User2System(virtAddr, STRING_SIZE);
+			int size = kernel->machine->ReadRegister(5);
+			int fileId = kernel->machine->ReadRegister(6);
+
+			int status = SysWrite(buffer, size, fileId);
+			System2User(virtAddr, size, buffer);
+			delete[] buffer;
+
+			DEBUG(dbgSys, "\nWriten to file with status " << status);
+
+			IncreasePC();
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
+		case SC_Read:
+		{
+			int virtAddr = kernel->machine->ReadRegister(4);
+			int size = kernel->machine->ReadRegister(5);
+			int fileId = kernel->machine->ReadRegister(6);
+			char *buffer = User2System(virtAddr, size);
+			int status = SysRead(buffer, size, fileId);
+			System2User(virtAddr, size, buffer);
+			delete[] buffer;
+
+			DEBUG(dbgSys, "\nRead from file with status " << status);
+
 			IncreasePC();
 			return;
 
@@ -254,14 +299,10 @@ void ExceptionHandler(ExceptionType which)
 
 		case SC_Seek:
 		{
-			int pos = kernel->machine->ReadRegister(4);
-			int fd = kernel->machine->ReadRegister(5);
+			int position = kernel->machine->ReadRegister(4);
+			int fileId = kernel->machine->ReadRegister(5);
 
-			int status = SysSeek(pos, fd);
-			if (status < 0)
-			{
-				DEBUG(dbgSys, "Seeking file error!");
-			}
+			int status = SysSeek(position, fileId);
 
 			kernel->machine->WriteRegister(2, (int)status);
 			IncreasePC();
@@ -271,7 +312,21 @@ void ExceptionHandler(ExceptionType which)
 			break;
 		}
 
-		
+		case SC_Remove:
+		{
+			int virtAddr = kernel->machine->ReadRegister(4);
+			char *buffer = User2System(virtAddr, STRING_SIZE);
+
+			int status = SysRemove(buffer);
+			DEBUG(dbgSys, "\nRemove file with file name" << buffer << " with status " << status);
+			kernel->machine->WriteRegister(2, (int)status);
+
+			IncreasePC();
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
 
 		default:
 			cerr << "Unexpected system call " << type << "\n";
