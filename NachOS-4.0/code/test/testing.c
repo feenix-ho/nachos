@@ -10,9 +10,9 @@ int main()
   char *letter = "Hello there!\nNice to meet you.\n";
   written = Write(letter, 100, fileId);
   read = Read(letter, 100, fileId);
-  PrintString(letter);
+  // PrintString(letter);
 
-  closed = Close(fileId);
+  // closed = Close(fileId);
   removed = Remove(filename);
   Halt();
 }

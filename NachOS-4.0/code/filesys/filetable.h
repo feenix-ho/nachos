@@ -14,12 +14,14 @@ class FileTable
 {
 private:
     OpenFile **openFile;
+    char **filename;
     int *fileOpenMode;
 
 public:
     FileTable()
     {
         openFile = new OpenFile *[FILE_MAX];
+        filename = new char *[FILE_MAX];
         fileOpenMode = new int[FILE_MAX];
         fileOpenMode[CONSOLE_IN] = MODE_READ;
         fileOpenMode[CONSOLE_OUT] = MODE_WRITE;
@@ -52,8 +54,19 @@ public:
             return -1;
         openFile[freeIndex] = new OpenFile(fileDescriptor);
         fileOpenMode[freeIndex] = openMode;
+        filename[freeIndex] = fileName;
 
         return freeIndex;
+    }
+
+    bool IsOpening(char *fileName)
+    {
+        for (int i = 0; i < FILE_MAX; ++i)
+            if (filename[i] == fileName && openFile[i] != NULL)
+            {
+                return true;
+            }
+        return false;
     }
 
     int Remove(int index)
@@ -64,6 +77,7 @@ public:
         {
             delete openFile[index];
             openFile[index] = NULL;
+            filename[index] = "";
             return 0;
         }
         return -1;

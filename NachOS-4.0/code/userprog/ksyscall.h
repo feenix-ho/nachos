@@ -275,6 +275,13 @@ int SysSeek(int position, int fileId)
 
 int SysRemove(char *filename)
 {
+  // cerr << kernel->fileSystem->IsOpening(filename);
+  bool isOpening = kernel->fileSystem->IsOpening(filename);
+  if (isOpening)
+  {
+    DEBUG(dbgSys, "\nERROR: File is currently opening.");
+    return -1;
+  }
   return kernel->fileSystem->Remove(filename);
 }
 

@@ -40,31 +40,38 @@
 
 #define MAX_PROCESS 10
 
-#ifdef FILESYS_STUB  // Temporarily implement file system calls as
+#ifdef FILESYS_STUB // Temporarily implement file system calls as
 // calls to UNIX, until the real file system
 // implementation is available
-class FileSystem {
-   public:
+class FileSystem
+{
+public:
     FileTable **fileTable;
 
-    FileSystem() {
+    FileSystem()
+    {
         fileTable = new FileTable *[MAX_PROCESS];
-        for (int i = 0; i < MAX_PROCESS; i++) {
+        for (int i = 0; i < MAX_PROCESS; i++)
+        {
             fileTable[i] = new FileTable;
         }
     }
 
-    ~FileSystem() {
-        for (int i = 0; i < MAX_PROCESS; i++) {
+    ~FileSystem()
+    {
+        for (int i = 0; i < MAX_PROCESS; i++)
+        {
             delete fileTable[i];
         }
         delete[] fileTable;
     }
 
-    bool Create(char *name) {
+    bool Create(char *name)
+    {
         int fileDescriptor = OpenForWrite(name);
 
-        if (fileDescriptor == -1) return FALSE;
+        if (fileDescriptor == -1)
+            return FALSE;
         Close(fileDescriptor);
         return TRUE;
     }
@@ -73,61 +80,73 @@ class FileSystem {
 
     int FileTableIndex();
 
-    void Renew(int id) {
-        for (int i = 0; i < FILE_MAX; i++) {
+    void Renew(int id)
+    {
+        for (int i = 0; i < FILE_MAX; i++)
+        {
             fileTable[id]->Remove(i);
         }
     }
 
-    int Open(char *name, int openMode) {
+    int Open(char *name, int openMode)
+    {
         return fileTable[FileTableIndex()]->Insert(name, openMode);
+    }
+
+    bool IsOpening(char *name)
+    {
+        return fileTable[FileTableIndex()]->IsOpening(name);
     }
 
     int Close(int id) { return fileTable[FileTableIndex()]->Remove(id); }
 
-    int Read(char *buffer, int charCount, int id) {
+    int Read(char *buffer, int charCount, int id)
+    {
         return fileTable[FileTableIndex()]->Read(buffer, charCount, id);
     }
 
-    int Write(char *buffer, int charCount, int id) {
+    int Write(char *buffer, int charCount, int id)
+    {
         return fileTable[FileTableIndex()]->Write(buffer, charCount, id);
     }
 
-    int Seek(int position, int id) {
+    int Seek(int position, int id)
+    {
         return fileTable[FileTableIndex()]->Seek(position, id);
     }
 
     bool Remove(char *name) { return Unlink(name) == 0; }
 };
 
-#else  // FILESYS
-class FileSystem {
-   public:
-    FileSystem(bool format);  // Initialize the file system.
-                              // Must be called *after* "synchDisk"
-                              // has been initialized.
-                              // If "format", there is nothing on
-                              // the disk, so initialize the directory
-                              // and the bitmap of free blocks.
+#else // FILESYS
+class FileSystem
+{
+public:
+    FileSystem(bool format); // Initialize the file system.
+                             // Must be called *after* "synchDisk"
+                             // has been initialized.
+                             // If "format", there is nothing on
+                             // the disk, so initialize the directory
+                             // and the bitmap of free blocks.
 
-    bool Create(char* name, int initialSize);
+    bool Create(char *name, int initialSize);
     // Create a file (UNIX creat)
 
-    OpenFile* Open(char* name);  // Open a file (UNIX open)
+    OpenFile *Open(char *name); // Open a file (UNIX open)
 
-    bool Remove(char* name);  // Delete a file (UNIX unlink)
+    bool Remove(char *name); // Delete a file (UNIX unlink)
 
-    void List();  // List all the files in the file system
+    void List(); // List all the files in the file system
 
-    void Print();  // List all the files and their contents
+    void Print(); // List all the files and their contents
 
-   private:
-    OpenFile* freeMapFile;    // Bit map of free disk blocks,
-                              // represented as a file
-    OpenFile* directoryFile;  // "Root" directory -- list of
-                              // file names, represented as a file
+private:
+    OpenFile *freeMapFile;   // Bit map of free disk blocks,
+                             // represented as a file
+    OpenFile *directoryFile; // "Root" directory -- list of
+                             // file names, represented as a file
 };
 
-#endif  // FILESYS
+#endif // FILESYS
 
-#endif  // FS_H
+#endif // FS_H
