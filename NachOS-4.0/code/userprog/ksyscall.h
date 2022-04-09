@@ -263,11 +263,19 @@ int SysRead(char *buffer, int size, int fileId)
   {
     return kernel->synchConsoleIn->GetString(buffer, size);
   }
+  if (fileId == _ConsoleOutput)
+  {
+    return -1;
+  }
   return kernel->fileSystem->Read(buffer, size, fileId);
 }
 
 int SysWrite(char *buffer, int size, int fileId)
 {
+  if (fileId == _ConsoleInput)
+  {
+    return -1;
+  }
   if (fileId == _ConsoleOutput)
   {
     return kernel->synchConsoleOut->PutString(buffer, size);

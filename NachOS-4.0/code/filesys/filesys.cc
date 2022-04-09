@@ -359,6 +359,4 @@ OpenFile *FileSystem::Open(char *name)
     return new OpenFile(fileDescriptor);
 }
 
-int FileSystem::FileTableIndex() { return 0; };
-
 #endif // FILESYS_STUB
