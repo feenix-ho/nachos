@@ -113,7 +113,7 @@ PROGRAMS = unknownhost
 else
 # change this if you create a new test program!
 # HERE
-PROGRAMS = add halt shell matmult sort segments testing help ascii
+PROGRAMS = add halt shell matmult sort segments testing help ascii cat concatenate createfile delete copy
 endif
 
 all: $(PROGRAMS)

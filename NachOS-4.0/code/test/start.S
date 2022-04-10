@@ -114,6 +114,14 @@ PrintString :
 	j 	$31
 	.end PrintString
 
+	.globl Concat  
+	.ent	Concat  
+Concat :
+	addiu $2,$0,SC_Concat
+	syscall
+	j 	$31
+	.end Concat
+
 	.globl Exit
 	.ent	Exit
 Exit:

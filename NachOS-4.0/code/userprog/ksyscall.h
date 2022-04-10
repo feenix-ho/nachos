@@ -133,6 +133,7 @@ int SysPrintString(char *buffer)
 
   for (int i = 0; buffer[i] != '\0'; ++i)
     SysPrintChar(buffer[i]);
+  
   return result;
 }
 
@@ -185,6 +186,21 @@ void SysPrintNum(int num)
   // Print number
   SysPrintString(buffer);
   delete[] buffer;
+}
+
+int SysConcat(char *buffer1, char *buffer2, char* result)
+{
+  int len1 = strlen(buffer1);
+  int len2 = strlen(buffer2);
+  int len = len1 + len2;
+  
+  if (len > STRING_SIZE)
+    return -1;
+  
+  strcpy(result, buffer1);
+  strcat(result, buffer2);
+  result[len] = '\0';
+  return 0;
 }
 
 bool SysCreate(char *filename)

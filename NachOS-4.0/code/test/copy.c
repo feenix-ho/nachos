@@ -1,33 +1,40 @@
 #include "syscall.h"
 
+#define STRING_SIZE 256
+
 int main()
 {
-    char origin_filename[STRING_SIZE], new_filename[STRING_SIZE];
-    
+    char origin_filename[STRING_SIZE], new_filename[STRING_SIZE], buffer[STRING_SIZE];
+    int read, write, fileId, status;
+
     // Get the origin filename
     PrintString("Enter the original filename: ");
     ReadString(origin_filename, STRING_SIZE);
 
     // Open the file to be displayed
-    int fileId = Open(origin_filename);
+    fileId = Open(origin_filename);
     if (fileId < 0)
         PrintString("Open original file failed.\n");
     else
         PrintString("Open original file succeeded.\n");
 
     // Read content of original file
-    char buffer[STRING_SIZE];
-    int read = Read(buffer, STRING_SIZE, fileId);
+    read = Read(buffer, STRING_SIZE, fileId);
+
+    PrintString("The length of the file is ");
+    PrintNum(read);
+    PrintString(" bytes.\n");
 
     // Close the original file
     Close(fileId);
+    PrintString("Close original file succeeded.\n");
     
     // Get the new filename
     PrintString("Enter the new filename: ");
     ReadString(new_filename, STRING_SIZE);
 
     // Create the new file
-    int status = Create(new_filename);
+    status = Create(new_filename);
     if (status < 0)
         PrintString("Create new file failed.\n");
     else
@@ -41,7 +48,7 @@ int main()
         PrintString("Open new file succeeded.\n");
 
     // Write content of original file to the new file
-    int write = Write(buffer, STRING_SIZE, fileId);
+    write = Write(buffer, read, fileId);
     if (write < 0)
         PrintString("Write to new file failed.\n");
     else

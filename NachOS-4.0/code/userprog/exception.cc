@@ -215,6 +215,42 @@ void ExceptionHandler(ExceptionType which)
 			break;
 		}
 
+		case SC_Concat:
+		{
+			int virtAddr1 = kernel->machine->ReadRegister(4);
+			int virtAddr2 = kernel->machine->ReadRegister(5);
+			int virtAddr3 = kernel->machine->ReadRegister(6);
+
+			char *buffer1 = User2System(virtAddr1, STRING_SIZE);
+			char *buffer2 = User2System(virtAddr2, STRING_SIZE);
+			char *buffer3 = User2System(virtAddr3, STRING_SIZE);
+
+			int status = SysConcat(buffer1, buffer2, buffer3);
+			delete[] buffer1;
+			delete[] buffer2;
+
+			if (status == 0)
+			{
+				DEBUG(dbgSys, "Concatenating strings OK\n");
+			}
+			else
+			{
+				DEBUG(dbgSys, "Concatenating strings failed\n");
+			}
+
+			int transfered = System2User(virtAddr3, STRING_SIZE, buffer3);
+			delete[] buffer3;
+
+			kernel->machine->WriteRegister(2, (int)transfered);
+			DEBUG(dbgSys, "Concatenating returning with len " << (int)transfered << "\n");
+			
+			IncreasePC();
+			return;
+
+			ASSERTNOTREACHED();
+			break;
+		}
+
 		case SC_Create:
 		{
 			int virtAddr = kernel->machine->ReadRegister(4);
@@ -223,6 +259,8 @@ void ExceptionHandler(ExceptionType which)
 			bool status = SysCreate(buffer);
 			kernel->machine->WriteRegister(2, status ? 1 : -1);
 			delete[] buffer;
+
+			DEBUG(dbgSys, "Creating file " << buffer << " returning " << (status ? 1 : -1) << "\n");
 			IncreasePC();
 			return;
 
@@ -238,6 +276,8 @@ void ExceptionHandler(ExceptionType which)
 			int status = SysOpen(buffer);
 			delete[] buffer;
 			kernel->machine->WriteRegister(2, (int)status);
+			
+			DEBUG(dbgSys, "Opening file " << buffer << " with fileId " << (int)status << "\n");
 			IncreasePC();
 			return;
 
@@ -251,6 +291,8 @@ void ExceptionHandler(ExceptionType which)
 
 			int status = SysClose(fileId);
 			kernel->machine->WriteRegister(2, (int)status);
+
+			DEBUG(dbgSys, "Closing file with fileId " << (int)fileId << " returning " << (int)status << "\n");
 			IncreasePC();
 			return;
 
@@ -269,7 +311,8 @@ void ExceptionHandler(ExceptionType which)
 			System2User(virtAddr, size, buffer);
 			delete[] buffer;
 
-			DEBUG(dbgSys, "\nWriten to file with status " << status);
+			kernel->machine->WriteRegister(2, (int)status);
+			DEBUG(dbgSys, "\nWriten to file with len " << status);
 
 			IncreasePC();
 			return;
@@ -288,7 +331,8 @@ void ExceptionHandler(ExceptionType which)
 			System2User(virtAddr, size, buffer);
 			delete[] buffer;
 
-			DEBUG(dbgSys, "\nRead from file with status " << status);
+			kernel->machine->WriteRegister(2, (int)status);
+			DEBUG(dbgSys, "\nRead from file with len " << status);
 
 			IncreasePC();
 			return;
@@ -305,6 +349,8 @@ void ExceptionHandler(ExceptionType which)
 			int status = SysSeek(position, fileId);
 
 			kernel->machine->WriteRegister(2, (int)status);
+			DEBUG(dbgSys, "\nSeeked to position " << position << " in file with fileId " << fileId << " returning " << (int)status);
+
 			IncreasePC();
 			return;
 
@@ -318,9 +364,10 @@ void ExceptionHandler(ExceptionType which)
 			char *buffer = User2System(virtAddr, STRING_SIZE);
 
 			int status = SysRemove(buffer);
-			DEBUG(dbgSys, "\nRemove file with file name" << buffer << " with status " << status);
-			kernel->machine->WriteRegister(2, (int)status);
 
+			kernel->machine->WriteRegister(2, (int)status);
+			DEBUG(dbgSys, "\nRemove file with file name" << buffer << " with status " << status);
+			
 			IncreasePC();
 			return;
 
@@ -344,7 +391,7 @@ void ExceptionHandler(ExceptionType which)
 		ASSERTNOTREACHED();
 		break;
 	default:
-		cerr << "Unexpected user mode exception" << (int)which << "\n";
+		cerr << "Unexpected user mode exception " << (int)which << "\n";
 		break;
 	}
 	ASSERTNOTREACHED();

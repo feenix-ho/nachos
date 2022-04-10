@@ -44,6 +44,7 @@
 #define SC_RandomNum 47
 #define SC_ReadString 48
 #define SC_PrintString 49
+#define SC_Concat 50
 
 #define STRING_SIZE 256
 #define FILE_NUM 10
@@ -76,6 +77,8 @@ void PrintChar();
 int RandomNum();
 void ReadString(char buffer[], int length);
 void PrintString(char str[]);
+
+int Concat(char str1[], char str2[], char result[]);
 
 /* Address space control operations: Exit, Exec, Execv, and Join */
 
